@@ -1,0 +1,29 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int n, k;
+vector<vector<int>> GRAPH;
+vector<bool> visited;
+
+void DFS(int current) {
+  visited[current] = 1; // marking the active node as visited
+  cout << "currently on:" << current << endl;
+  for (auto node : GRAPH[current]) // iterate through all of it's neighboors 
+    if (!visited[node]) DFS(node); // send DFS if it's a new node
+}
+
+int main() {
+  cin >> n >> k;
+  GRAPH.resize(n + 1);
+  visited.resize(n + 1);
+  for (int i = 0; i < k; i++) {
+    int a, b;
+    cin >> a >> b;
+    GRAPH[a].push_back(b);
+    GRAPH[b].push_back(a);
+  }
+
+  DFS(1); // starting algorithm from node 1
+  return 0;
+}
