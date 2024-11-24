@@ -1,0 +1,150 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <climits> // For INT_MAX
+using namespace std;
+
+#define INF INT_MAX
+
+// Edge structure for Kruskal's Algorithm
+struct Edge {
+    int u, v, weight;
+    Edge(int u, int v, int weight) : u(u), v(v), weight(weight) {}
+};
+
+// Function to compare edges based on weight (for Kruskal's)
+bool compareEdges(Edge a, Edge b) {
+    return a.weight < b.weight;
+}
+
+// Class for the Disjoint Set Union (for Kruskal's Algorithm)
+class DSU {
+private:
+    vector<int> parent, rank;
+
+public:
+    DSU(int n) {
+        parent.resize(n);
+        rank.resize(n, 0);
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+        }
+    }
+
+    // Find with path compression
+    int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    // Union by rank
+    void unite(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+
+        if (rootX != rootY) {
+            if (rank[rootX] > rank[rootY]) {
+                parent[rootY] = rootX;
+            } else if (rank[rootX] < rank[rootY]) {
+                parent[rootX] = rootY;
+            } else {
+                parent[rootY] = rootX;
+                rank[rootX]++;
+            }
+        }
+    }
+};
+
+// Prim's Algorithm
+void prims(vector<vector<int>>& graph, int n) {
+    vector<int> key(n, INF); // To store minimum weight for each vertex
+    vector<int> parent(n, -1); // To store the parent of each vertex in the MST
+    vector<bool> inMST(n, false); // To check if a vertex is in MST
+
+    key[0] = 0; // Start with the first vertex
+    int totalCost = 0;
+
+    for (int count = 0; count < n - 1; ++count) {
+        // Find the vertex with the smallest key value
+        int minKey = INF, u = -1;
+        for (int v = 0; v < n; ++v) {
+            if (!inMST[v] && key[v] < minKey) {
+                minKey = key[v];
+                u = v;
+            }
+        }
+
+        inMST[u] = true; // Include the vertex in MST
+        totalCost += key[u];
+
+        // Update key and parent for adjacent vertices
+        for (int v = 0; v < n; ++v) {
+            if (graph[u][v] && !inMST[v] && graph[u][v] < key[v]) {
+                key[v] = graph[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+
+    // Print the MST and total cost
+    cout << "\nPrim's Algorithm - Minimum Spanning Tree:" << endl;
+    for (int i = 1; i < n; ++i) {
+        cout << "Edge: " << parent[i] << " - " << i << ", Weight: " << graph[i][parent[i]] << endl;
+    }
+    cout << "Total Cost: " << totalCost << endl;
+}
+
+// Kruskal's Algorithm
+void kruskals(vector<Edge>& edges, int n) {
+    sort(edges.begin(), edges.end(), compareEdges); // Sort edges by weight
+
+    DSU dsu(n); // Create a Disjoint Set Union
+    int totalCost = 0;
+
+    cout << "\nKruskal's Algorithm - Minimum Spanning Tree:" << endl;
+    for (Edge& edge : edges) {
+        if (dsu.find(edge.u) != dsu.find(edge.v)) {
+            dsu.unite(edge.u, edge.v);
+            cout << "Edge: " << edge.u << " - " << edge.v << ", Weight: " << edge.weight << endl;
+            totalCost += edge.weight;
+        }
+    }
+
+    cout << "Total Cost: " << totalCost << endl;
+}
+
+int main() {
+    int n, e;
+    cout << "Enter the number of offices (vertices): ";
+    cin >> n;
+
+    // Input adjacency matrix for Prim's
+    vector<vector<int>> graph(n, vector<int>(n, 0));
+    cout << "Enter the adjacency matrix (use 0 for no connection):\n";
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            cin >> graph[i][j];
+        }
+    }
+
+    // Input edges for Kruskal's
+    cout << "\nEnter the number of edges: ";
+    cin >> e;
+    vector<Edge> edges;
+    cout << "Enter edges in the format (u v weight):\n";
+    for (int i = 0; i < e; ++i) {
+        int u, v, weight;
+        cin >> u >> v >> weight;
+        edges.push_back(Edge(u, v, weight));
+    }
+
+    // Run Prim's Algorithm
+    prims(graph, n);
+
+    // Run Kruskal's Algorithm
+    kruskals(edges, n);
+
+    return 0;
+}

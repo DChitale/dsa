@@ -1,0 +1,56 @@
+#include <iostream>
+#include <climits> // For INT_MIN and INT_MAX
+using namespace std;
+
+// A helper function to find min and max using Divide and Conquer
+pair<int, int> findMinAndMax(int arr[], int low, int high) {
+    // Base case: Only one element
+    if (low == high) {
+        return {arr[low], arr[low]};
+    }
+
+    // Base case: Only two elements
+    if (high == low + 1) {
+        if (arr[low] < arr[high]) {
+            return {arr[low], arr[high]};
+        } else {
+            return {arr[high], arr[low]};
+        }
+    }
+
+    // Recursive case: Split the array into two halves
+    int mid = (low + high) / 2;
+    pair<int, int> leftResult = findMinAndMax(arr, low, mid);
+    pair<int, int> rightResult = findMinAndMax(arr, mid + 1, high);
+
+    // Combine results
+    int overallMin = min(leftResult.first, rightResult.first);
+    int overallMax = max(leftResult.second, rightResult.second);
+
+    return {overallMin, overallMax};
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    if (n <= 0) {
+        cout << "The list is empty!" << endl;
+        return 0;
+    }
+
+    int arr[n];
+    cout << "Enter the elements: ";
+    for (int i = 0; i < n; ++i) {
+        cin >> arr[i];
+    }
+
+    // Find min and max using Divide and Conquer
+    pair<int, int> result = findMinAndMax(arr, 0, n - 1);
+
+    cout << "Minimum element: " << result.first << endl;
+    cout << "Maximum element: " << result.second << endl;
+
+    return 0;
+}

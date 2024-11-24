@@ -1,0 +1,125 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+const int TABLE_SIZE = 10; // Hash table size
+
+// Structure for student data
+struct Student {
+    int rollNumber; // Key
+    string name;    // Value
+
+    // Default constructor for an empty slot
+    Student() : rollNumber(-1), name("") {}
+};
+
+// Hash function
+int hashFunction(int key) {
+    return key % TABLE_SIZE;
+}
+
+// Insert a student into the hash table using linear probing
+void insertStudent(Student table[], int rollNumber, string name) {
+    int index = hashFunction(rollNumber);
+    int originalIndex = index;
+
+    // Handle collision using linear probing
+    while (table[index].rollNumber != -1) {
+        index = (index + 1) % TABLE_SIZE;
+
+        // If table is full (looped back to the original index)
+        if (index == originalIndex) {
+            cout << "Hash table is full. Cannot insert student: Roll Number = " << rollNumber << ", Name = " << name << "\n";
+            return;
+        }
+    }
+
+    // Insert student into the empty slot
+    table[index].rollNumber = rollNumber;
+    table[index].name = name;
+    cout << "Inserted: Roll Number = " << rollNumber << ", Name = " << name << "\n";
+}
+
+// Display the hash table
+void displayHashTable(Student table[]) {
+    cout << "\nHash Table:\n";
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        if (table[i].rollNumber != -1) {
+            cout << "Index " << i << ": Roll Number = " << table[i].rollNumber << ", Name = " << table[i].name << "\n";
+        } else {
+            cout << "Index " << i << ": Empty\n";
+        }
+    }
+}
+
+// Search for a student in the hash table
+void searchStudent(Student table[], int rollNumber) {
+    int index = hashFunction(rollNumber);
+    int originalIndex = index;
+
+    // Search for the roll number using linear probing
+    while (table[index].rollNumber != -1) {
+        if (table[index].rollNumber == rollNumber) {
+            cout << "Found: Roll Number = " << rollNumber << ", Name = " << table[index].name << "\n";
+            return;
+        }
+        index = (index + 1) % TABLE_SIZE;
+
+        // If we've looped back to the original index
+        if (index == originalIndex) {
+            break;
+        }
+    }
+
+    cout << "Roll Number " << rollNumber << " not found.\n";
+}
+
+// Main function to perform hashing with linear probing
+int main() {
+    Student table[TABLE_SIZE]; // Hash table
+    int choice;
+
+    do {
+        cout << "\nHashing Operations:\n";
+        cout << "1. Insert Student\n2. Display Hash Table\n3. Search Student\n4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            // Insert student
+            int rollNumber;
+            string name;
+            cout << "Enter Roll Number: ";
+            cin >> rollNumber;
+            cout << "Enter Name: ";
+            cin.ignore();
+            getline(cin, name);
+            insertStudent(table, rollNumber, name);
+            break;
+        }
+        case 2:
+            // Display hash table
+            displayHashTable(table);
+            break;
+
+        case 3: {
+            // Search for a student
+            int rollNumber;
+            cout << "Enter Roll Number to search: ";
+            cin >> rollNumber;
+            searchStudent(table, rollNumber);
+            break;
+        }
+
+        case 4:
+            cout << "Exiting...\n";
+            break;
+
+        default:
+            cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
